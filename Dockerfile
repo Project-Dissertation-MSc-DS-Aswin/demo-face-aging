@@ -26,12 +26,13 @@ WORKDIR /home/project
 
 ENV PORT 8080
 
-COPY ./demo /home/project/demo
-
 WORKDIR /home/project/demo
 
 RUN wget https://project-dissertation.s3.eu-west-2.amazonaws.com/facenet_keras.h5 -P /home/project/src/models/
 
 COPY ./src /home/project/src
+
+COPY ./demo /home/project/demo
+COPY ./demo/main.py /home/project/demo
 
 CMD ["python3", "main.py"]

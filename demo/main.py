@@ -37,8 +37,10 @@ from pathlib import Path, PurePath
 app = FastAPI()
 
 origins = [
-    "http://nscalo.github.io", 
-    "http://20.120.53.95:8041",
+    "https://bejewelled-pie-d79a27.netlify.app", 
+    "http://bejewelled-pie-d79a27.netlify.app", 
+    "http://20.120.53.95:8080",
+    "https://20.120.53.95:8080",
     "*"
 ]
 
