@@ -37,8 +37,8 @@ from pathlib import Path, PurePath
 app = FastAPI()
 
 origins = [
-    "http://localhost:3000", 
-    "http://localhost:8041",
+    "http://nscalo.github.io", 
+    "http://20.120.53.95:8041",
     "*"
 ]
 

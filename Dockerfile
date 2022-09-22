@@ -1,6 +1,6 @@
-FROM ubuntu:20.04
+FROM python:3.7
 
-RUN apt-get update && apt-get install python3 python3-pip wget unzip git curl -y
+RUN apt-get update && apt-get install python3-pip wget unzip git curl -y
 
 WORKDIR /home/project
 
@@ -20,10 +20,18 @@ RUN pip3 install matplotlib
 
 COPY src/models /home/project/src/models
 
+RUN apt-get install libgl1-mesa-glx -y
+
 WORKDIR /home/project
 
 ENV PORT 8080
 
+COPY ./demo /home/project/demo
+
 WORKDIR /home/project/demo
 
-CMD ["python", "main.py"]
+RUN wget https://project-dissertation.s3.eu-west-2.amazonaws.com/facenet_keras.h5 -P /home/project/src/models/
+
+COPY ./src /home/project/src
+
+CMD ["python3", "main.py"]
