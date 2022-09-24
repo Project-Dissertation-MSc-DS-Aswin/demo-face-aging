@@ -83,6 +83,14 @@ async def get_image(images_path: str):
       yield from file_like
 
   return StreamingResponse(iterfile(), media_type="image/jpg")
+  
+@app.get("/{images_path}")
+async def get_demo_image(images_path: str):
+  def iterfile():
+    with open(images_path, mode="rb") as file_like:
+      yield from file_like
+
+  return StreamingResponse(iterfile(), media_type="image/jpg")
 
 @app.get("/backend/images/{num}/")
 def get_image_url(num: int):
@@ -109,38 +117,38 @@ class Item(BaseModel):
 @app.post("/backend/drift/{seed}/{num}/{pipeline}/")
 def get_drift_predictions(seed: int, num: int, pipeline: str, item: Item):
   
-  DIRECTORY = os.curdir
-  parent_dir = os.path.abspath(os.path.dirname(os.path.dirname(DIRECTORY)))
-  path = PurePath(parent_dir)
-  pipeline_dir = path.parts
-  idx = list(pipeline_dir).index("demo")
-  pipeline_dir = os.sep.join(pipeline_dir[0:idx]) + os.sep + os.sep.join(pipeline_dir[idx+1:])
+  # DIRECTORY = os.curdir
+  # parent_dir = os.path.abspath(os.path.dirname(os.path.dirname(DIRECTORY)))
+  # path = PurePath(parent_dir)
+  # pipeline_dir = path.parts
+  # idx = list(pipeline_dir).index("demo")
+  # pipeline_dir = os.sep.join(pipeline_dir[0:idx]) + os.sep + os.sep.join(pipeline_dir[idx+1:])
   
-  python_exe = os.environ["PYTHON_EXE"]
+  # python_exe = os.environ["PYTHON_EXE"]
   
   filenames = item.filenames
   
-  drift_source_filenames = pd.read_csv("../src/data_collection/16.07.2022_two_classifiers_facenet/facenet_agedb_drift_evaluate_difference.csv")
-  idx = [drift_source_filenames['filename'] == filename for filename in filenames]
-  result_idx = [False]*len(drift_source_filenames)
-  for i in idx:
-      result_idx = np.logical_or(result_idx, i)
+  # drift_source_filenames = pd.read_csv("../src/data_collection/16.07.2022_two_classifiers_facenet/facenet_agedb_drift_evaluate_difference.csv")
+  # idx = [drift_source_filenames['filename'] == filename for filename in filenames]
+  # result_idx = [False]*len(drift_source_filenames)
+  # for i in idx:
+  #     result_idx = np.logical_or(result_idx, i)
   
-  drift_source_filenames = drift_source_filenames.loc[result_idx].reset_index()
-  drift_source_filenames.to_csv("../src/data_collection/16.07.2022_two_classifiers_facenet/facenet_agedb_drift_evaluate_difference_reduced.csv")
+  # drift_source_filenames = drift_source_filenames.loc[result_idx].reset_index()
+  # drift_source_filenames.to_csv("../src/data_collection/16.07.2022_two_classifiers_facenet/facenet_agedb_drift_evaluate_difference_reduced.csv")
   
-  script_path = ["face_with_aging.py", "dataset=agedb", "model_path=../models/facenet_keras.h5", "batch_size=128", "metadata=../dataset_meta/AgeDB_metadata.mat", 
-  "no_of_samples=20", "no_of_pca_samples=20", "grouping_distance_type=DISTINCT", "tracking_uri=mlruns/", "logger_name=facenet_with_aging", 
-  "classifier=../models/16.07.2022_two_classifiers_facenet/facenet_agedb_voting_classifier_age_test_younger_latest.pkl", "experiment_id=0", "pca_type=KernelPCA", "noise_error=0", 
-  "mode=image_reconstruction", "drift_beta=1.0", "covariates_beta=0", "data_dir=../../demo/images/temp", 
-  "drift_synthesis_filename=../data_collection/facenet_agedb_drift_synthesis_filename-range-of-beta-latest-1.csv", 
-  "drift_source_filename=../data_collection/16.07.2022_two_classifiers_facenet/facenet_agedb_drift_evaluate_difference.csv", 
-  "drift_source_reduced_filename=../data_collection/16.07.2022_two_classifiers_facenet/facenet_agedb_drift_evaluate_difference_reduced.csv", 
-  "model=FaceNetKeras", "input_shape=-1,160,160,3", "function_type=morph", 
-  "drift_type=incremental"]
+  # script_path = ["face_with_aging.py", "dataset=agedb", "model_path=../models/facenet_keras.h5", "batch_size=128", "metadata=../dataset_meta/AgeDB_metadata.mat", 
+  # "no_of_samples=20", "no_of_pca_samples=20", "grouping_distance_type=DISTINCT", "tracking_uri=mlruns/", "logger_name=facenet_with_aging", 
+  # "classifier=../models/16.07.2022_two_classifiers_facenet/facenet_agedb_voting_classifier_age_test_younger_latest.pkl", "experiment_id=0", "pca_type=KernelPCA", "noise_error=0", 
+  # "mode=image_reconstruction", "drift_beta=1.0", "covariates_beta=0", "data_dir=../../demo/images/temp", 
+  # "drift_synthesis_filename=../data_collection/facenet_agedb_drift_synthesis_filename-range-of-beta-latest-1.csv", 
+  # "drift_source_filename=../data_collection/16.07.2022_two_classifiers_facenet/facenet_agedb_drift_evaluate_difference.csv", 
+  # "drift_source_reduced_filename=../data_collection/16.07.2022_two_classifiers_facenet/facenet_agedb_drift_evaluate_difference_reduced.csv", 
+  # "model=FaceNetKeras", "input_shape=-1,160,160,3", "function_type=morph", 
+  # "drift_type=incremental"]
   
-  print("""cd ..\\src\\pipeline && {python_exe} {script_path}""".format(python_exe=python_exe, script_path=" ".join(script_path)))
-  subprocess.run([python_exe] + script_path, shell=True, cwd='../src/pipeline')
+  # print("""cd ..\\src\\pipeline && {python_exe} {script_path}""".format(python_exe=python_exe, script_path=" ".join(script_path)))
+  # subprocess.run([python_exe] + script_path, shell=True, cwd='../src/pipeline')
   
   args = context.Args({})
   args.metadata = "../src/dataset_meta/AgeDB_metadata.mat"
@@ -212,7 +220,7 @@ def get_drift_predictions(seed: int, num: int, pipeline: str, item: Item):
   ax.legend()
   fig.savefig("plot.png")
   
-  return {"predictions": data.to_dict(), "score_test": 0, "score_validation": 0}
+  return {"predictions": data.to_dict(), "score_test": 0, "score_validation": 0, "plot": "plot.png"}
   
 if __name__ == "__main__":
   uvicorn.run("main:app", host="0.0.0.0", port=8080)
