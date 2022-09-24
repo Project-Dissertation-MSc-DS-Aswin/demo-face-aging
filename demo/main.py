@@ -41,6 +41,7 @@ origins = [
     "http://bejewelled-pie-d79a27.netlify.app", 
     "http://20.120.53.95:8080",
     "https://20.120.53.95:8080",
+    "http://20.121.254.238",
     "*"
 ]
 
